@@ -14,6 +14,9 @@ URL = "https://fi.jamix.cloud/apps/menu/?anro=91938&k=3&mt=56"
 PUBLIC_DIR = "public"
 TEMPLATE_DIR = "templates"
 
+def clean_text(text: str):
+    return text.replace("*", "").strip().strip(",").strip(".").strip()
+
 def scrape_menu():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -52,8 +55,8 @@ def scrape_menu():
                 diet_el = wrap.find("span", class_="menuitem-diets")
                 
                 if name_el:
-                    name = name_el.get_text(strip=True)
-                    diet = diet_el.get_text(strip=True) if diet_el else ""
+                    name = clean_text(name_el.get_text(strip=True))
+                    diet = clean_text(diet_el.get_text(strip=True)) if diet_el else ""
                     menu_dict["meals"].append({"name": name, "diet": diet})
                     
             if menu_dict["meals"]:
@@ -83,7 +86,7 @@ def generate_html(menus):
         cat_name = menu["category"].split(" ")[0:2] # e.g. "Xamk Kasvislounas"
         meta_description_lines.append(" ".join(cat_name))
         for meal in menu["meals"]:
-            meta_description_lines.append(f"- {meal['name'].replace("*", "").strip()}")
+            meta_description_lines.append(f"- {meal['name']}")
         meta_description_lines.append("")
     
     meta_desc = "\n".join(meta_description_lines).strip()
