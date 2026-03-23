@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph for Embedding -->
+    <meta property="og:title" content="Syömään? - Päivän Lounas" />
+    <meta property="og:description" content="{{ meta_description }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sampo.aho.sh/syomaan" />
+    <meta property="og:image" content="https://sampo.aho.sh/syomaan/og-image.png" />
+    
+    <title>Syömään? Lounasmenu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.2em;
+            color: #444;
+            margin-top: 25px;
+            margin-bottom: 5px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #007bff;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Syömään? Päivän Lounas</h1>
+    
+    {% for menu in menus %}
+        <h2>{{ menu.category }}</h2>
+        <ul>
+            {% for item in menu.meals %}
+                <li>
+                    <strong>{{ item.name }}</strong>
+                    {% if item.diet %}
+                       <small>({{ item.diet }})</small>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <ul>
+            <li>Ei ruokalistaa tälle päivälle.</li>
+        </ul>
+    {% endfor %}
+    
+    <div class="footer">
+        Päivitetty (Automaattisesti): {{ updated_at }}
+    </div>
+</body>
+</html>

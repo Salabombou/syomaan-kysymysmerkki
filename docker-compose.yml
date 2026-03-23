@@ -1,0 +1,7 @@
+services:
+  scraper:
+    build: .
+    container_name: jamix_scraper
+    restart: unless-stopped
+    volumes:
+      - ./public:/app/public
