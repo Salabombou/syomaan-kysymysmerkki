@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Open Graph for Embedding -->
-    <meta property="og:title" content="Syömään? - Päivän Lounas" />
+    <meta property="og:title" content="Syömään?" />
+    <meta property="og:site_name" content="Päivitetty: {{ updated_at }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://sampo.aho.sh/syomaan" />
-    <meta property="og:image" content="https://sampo.aho.sh/syomaan/og-image.png" />
-    
+    <meta property="og:image" content="https://sampo.aho.sh/syomaan/cards/{{ card_image }}" />
+    <meta name="theme-color" content="#fdb92a" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card:src" content="https://sampo.aho.sh/syomaan/cards/{{ card_image }}">
     <title>Syömään? Lounasmenu</title>
     <style>
         body {
@@ -43,7 +46,7 @@
             margin: 10px 0;
             padding: 15px;
             border-radius: 5px;
-            border-left: 5px solid #007bff;
+            border-left: 5px solid #fdb92a;
         }
         .footer {
             margin-top: 30px;
@@ -75,7 +78,7 @@
     {% endfor %}
     
     <div class="footer">
-        Päivitetty (Automaattisesti): {{ updated_at }}
+        Päivitetty: {{ updated_at }}
     </div>
 </body>
 </html>
