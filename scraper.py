@@ -23,7 +23,6 @@ class MenuCategory(Enum):
     ERIKOISRUOKA = "Erikoisruoka"
     JALKIRUOKA = "Jälkiruoka"
     MUU_RUOKA = "Muu ruoka"
-    HUOM = "Huom."
 
     def __str__(self):
         return self.value
@@ -85,10 +84,8 @@ def sort_by_menu_category_name(menus: List[MenuItem]) -> List[MenuItem]:
                 return 3
             case MenuCategory.MUU_RUOKA:
                 return 4
-            case MenuCategory.HUOM:
-                return 5
             case MenuCategory.JALKIRUOKA:
-                return 6
+                return 5
         return 99
 
     return sorted(menus, key=get_priority)
@@ -137,14 +134,16 @@ def scrape_menu() -> List[MenuItem]:
                     name = clean_text(name_el.get_text(strip=True)).capitalize()
                     if is_ignored_meal(name):
                         continue
-                    diet = clean_text(diet_el.get_text(strip=True)).upper() if diet_el else ""
+                    diet = (
+                        clean_text(diet_el.get_text(strip=True)).upper()
+                        if diet_el
+                        else ""
+                    )
                     meals.append(MealItem(name=name, diet=diet))
 
             if meals:
                 menus.append(
-                    MenuItem(
-                        category=get_category_name(category_name_raw), meals=meals
-                    )
+                    MenuItem(category=get_category_name(category_name_raw), meals=meals)
                 )
 
     except Exception as e:
@@ -174,7 +173,25 @@ def generate_html(menus: List[MenuItem]) -> None:
 
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     template = env.get_template("index.html.j2")
-
+    
+    # For debugging frontend without scraping, you can use this dummy data:
+    """
+    menus = [
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+    ]
+    """
+    
     meta_description_lines = []
     for menu in menus:
         # Simplify category text for the embed
@@ -184,28 +201,36 @@ def generate_html(menus: List[MenuItem]) -> None:
         meta_description_lines.append("")
 
     meta_desc = "\n".join(meta_description_lines).strip()
-    if not meta_desc:
+    
+    if not menus:
         meta_desc = "Ei ruokalistaa tälle päivälle."
+        page_title = "Voi harmi. Ei ruokalistaa tälle päivälle."
+        og_title = "Voi harmi."
+        card_image = ""
+    else:
+        page_title = "Syömään? Lounasmenu"
+        og_title = "Syömään?"
+        cards_dir = os.path.join(STATIC_DIR, "cards")
+        card_image = "maha.gif"
+        if os.path.exists(cards_dir):
+            cards = [
+                f
+                for f in os.listdir(cards_dir)
+                if os.path.isfile(os.path.join(cards_dir, f))
+            ]
+            if cards:
+                card_image = random.choice(cards)
 
     tz = ZoneInfo("Europe/Helsinki")
     updated_time_str = datetime.datetime.now(tz).strftime("%d.%m.%Y klo %H:%M (%Z)")
-
-    cards_dir = os.path.join(STATIC_DIR, "cards")
-    card_image = "maha.gif"
-    if os.path.exists(cards_dir):
-        cards = [
-            f
-            for f in os.listdir(cards_dir)
-            if os.path.isfile(os.path.join(cards_dir, f))
-        ]
-        if cards:
-            card_image = random.choice(cards)
 
     html_content = template.render(
         menus=menus,
         meta_description=meta_desc,
         updated_at=updated_time_str,
         card_image=card_image,
+        page_title=page_title,
+        og_title=og_title,
     )
 
     with open(os.path.join(PUBLIC_DIR, "index.html"), "w", encoding="utf-8") as f:
@@ -215,12 +240,4 @@ def generate_html(menus: List[MenuItem]) -> None:
 
 if __name__ == "__main__":
     menus = scrape_menu()
-    if not menus:
-        # Fallback text if menu is unavailable, empty, or parsing failed
-        menus = [
-            MenuItem(
-                category=MenuCategory.HUOM,
-                meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
-            )
-        ]
     generate_html(menus)

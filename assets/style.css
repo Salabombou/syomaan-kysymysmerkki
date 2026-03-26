@@ -17,6 +17,11 @@ html[data-theme='dark'] {
     --secondary-text: #8D8D8D;
 }
 
+html.empty-menu,
+html[data-theme='dark'].empty-menu {
+    --primary-color: #8D8D8D;
+}
+
 /* Base Styles */
 * {
     box-sizing: border-box;
@@ -126,19 +131,27 @@ input[type="checkbox"]:not(:checked) + .theme-switch .sun {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 clamp(1rem, 4vw, 2rem);
-    display: flex;
+    display: grid;
     flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
 }
 
 /* Empty State */
 .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     text-align: center;
     font-size: clamp(1.2rem, 3vw, 1.8rem);
     color: var(--secondary-text);
     padding: 3rem 1rem;
     background-color: var(--card-bg);
     border: 2px dashed var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Categories & Lists */
@@ -151,6 +164,7 @@ h2 {
     font-weight: 700;
     position: relative;
     width: 100%;
+    transition: color 0.3s ease;
 }
 
 h2::after {
@@ -162,6 +176,7 @@ h2::after {
     height: 4px;
     background-color: var(--primary-color);
     border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
 .meal-list {
@@ -198,6 +213,7 @@ h2::after {
     width: 4px;
     background-color: var(--primary-color);
     border-radius: 4px 0 0 4px;
+    transition: background-color 0.3s ease;
 }
 
 .meal-item:hover {
@@ -219,6 +235,7 @@ h2::after {
     border-radius: 20px;
     white-space: nowrap;
     font-weight: 700;
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Footer */
@@ -229,15 +246,7 @@ h2::after {
     color: var(--secondary-text);
     font-size: clamp(0.8rem, 2.5vw, 1rem);
     border-top: 1px solid var(--border-color);
-}
-
-/* Responsive Overrides */
-@media (min-width: 768px) {
-    .menu-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2.5rem;
-    }
+    transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 @media (min-width: 1024px) {
@@ -251,5 +260,4 @@ h2::after {
         max-width: 1600px;
         gap: 4rem;
     }
-
 }

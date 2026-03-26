@@ -1,75 +1,95 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="fi"{% if not menus %} class="empty-menu"{% endif %}>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Open Graph for Embedding -->
-    <meta property="og:title" content="Syömään?" />
+    <meta property="og:title" content="{{ og_title }}" />
     <meta property="og:site_name" content="Päivitetty: {{ updated_at }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta property="og:type" content="website" />
+    {% if card_image %}
     <meta property="og:image" content="/syomaan/cards/{{ card_image }}" />
-    <meta name="theme-color" content="#fdb92a" />
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:card:src" content="/syomaan/cards/{{ card_image }}">
-    <title>Syömään? Lounasmenu</title>
+    {% endif %}
+    <meta name="theme-color" content="{% if menus %} #fdb92a {% else %} #8D8D8D {% endif %}">
+    <title>{{ page_title }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script>
         // Sync JS to read localStorage and set theme before paint to avoid FOUC
-        const savedTheme = localStorage.getItem('theme');
+        const savedTheme = localStorage.getItem('theme')
         if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.setAttribute('data-theme', 'dark')
         }
     </script>
 </head>
+
 <body>
     <header class="app-header">
-        <h1>Syömään? Päivän Lounas</h1>
-        
+        <h1>{{ og_title }}</h1>
+
         <div class="theme-switch-wrapper">
-            <input type="checkbox" id="theme-toggle" onchange="document.documentElement.setAttribute('data-theme', this.checked ? 'dark' : 'light'); localStorage.setItem('theme', this.checked ? 'dark' : 'light');">
+            <input type="checkbox" id="theme-toggle"
+                onchange="document.documentElement.setAttribute('data-theme', this.checked ? 'dark' : 'light'); localStorage.setItem('theme', this.checked ? 'dark' : 'light');">
             <label class="theme-switch" for="theme-toggle">
-                <svg class="icon sun" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="icon sun" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
                 <span class="slider round"></span>
-                <svg class="icon moon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg class="icon moon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
             </label>
             <script>
                 // Check the toggle if theme is dark
-                if(document.documentElement.getAttribute('data-theme') === 'dark') {
-                    document.getElementById('theme-toggle').checked = true;
+                if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                    document.getElementById('theme-toggle').checked = true
                 }
             </script>
         </div>
     </header>
-    
+
     <main class="menu-container">
         {% for menu in menus %}
-            <section>
-                <h2>{{ menu.category }}</h2>
-                <ul class="meal-list">
-                    {% for item in menu.meals %}
-                        <article class="meal-item">
-                            <strong>{{ item.name }}</strong>
-                            {% if item.diet %}
-                               <small class="diet-info">({{ item.diet }})</small>
-                            {% endif %}
-                        </article>
-                    {% endfor %}
-                </ul>
-            </section>
+        <section>
+            <h2>{{ menu.category }}</h2>
+            <ul class="meal-list">
+                {% for item in menu.meals %}
+                <article class="meal-item">
+                    <strong>{{ item.name }}</strong>
+                    {% if item.diet %}
+                    <small class="diet-info">({{ item.diet }})</small>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </ul>
+        </section>
         {% else %}
-            <section class="empty-state">
-                <p>Ei ruokalistaa tälle päivälle.</p>
-            </section>
+        <section class="empty-state">
+            <p>Ei ruokalistaa tälle päivälle.</p>
+        </section>
         {% endfor %}
     </main>
-    
+
     <footer class="app-footer">
         Päivitetty: {{ updated_at }}
     </footer>
 </body>
+
 </html>
