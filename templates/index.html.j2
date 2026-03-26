@@ -9,76 +9,67 @@
     <meta property="og:site_name" content="Päivitetty: {{ updated_at }}" />
     <meta property="og:description" content="{{ meta_description }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://sampo.aho.sh/syomaan" />
-    <meta property="og:image" content="https://sampo.aho.sh/syomaan/cards/{{ card_image }}" />
+    <meta property="og:image" content="/syomaan/cards/{{ card_image }}" />
     <meta name="theme-color" content="#fdb92a" />
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:card:src" content="https://sampo.aho.sh/syomaan/cards/{{ card_image }}">
+    <meta name="twitter:card:src" content="/syomaan/cards/{{ card_image }}">
     <title>Syömään? Lounasmenu</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Sync JS to read localStorage and set theme before paint to avoid FOUC
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
-        h1 {
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-        }
-        h2 {
-            font-size: 1.2em;
-            color: #444;
-            margin-top: 25px;
-            margin-bottom: 5px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        li {
-            background: #fff;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 5px solid #fdb92a;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 0.8em;
-            color: #777;
-            text-align: center;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <h1>Syömään? Päivän Lounas</h1>
+    <header class="app-header">
+        <h1>Syömään? Päivän Lounas</h1>
+        
+        <div class="theme-switch-wrapper">
+            <input type="checkbox" id="theme-toggle" onchange="document.documentElement.setAttribute('data-theme', this.checked ? 'dark' : 'light'); localStorage.setItem('theme', this.checked ? 'dark' : 'light');">
+            <label class="theme-switch" for="theme-toggle">
+                <svg class="icon sun" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <span class="slider round"></span>
+                <svg class="icon moon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </label>
+            <script>
+                // Check the toggle if theme is dark
+                if(document.documentElement.getAttribute('data-theme') === 'dark') {
+                    document.getElementById('theme-toggle').checked = true;
+                }
+            </script>
+        </div>
+    </header>
     
-    {% for menu in menus %}
-        <h2>{{ menu.category }}</h2>
-        <ul>
-            {% for item in menu.meals %}
-                <li>
-                    <strong>{{ item.name }}</strong>
-                    {% if item.diet %}
-                       <small>({{ item.diet }})</small>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <ul>
-            <li>Ei ruokalistaa tälle päivälle.</li>
-        </ul>
-    {% endfor %}
+    <main class="menu-container">
+        {% for menu in menus %}
+            <section>
+                <h2>{{ menu.category }}</h2>
+                <ul class="meal-list">
+                    {% for item in menu.meals %}
+                        <article class="meal-item">
+                            <strong>{{ item.name }}</strong>
+                            {% if item.diet %}
+                               <small class="diet-info">({{ item.diet }})</small>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% else %}
+            <section class="empty-state">
+                <p>Ei ruokalistaa tälle päivälle.</p>
+            </section>
+        {% endfor %}
+    </main>
     
-    <div class="footer">
+    <footer class="app-footer">
         Päivitetty: {{ updated_at }}
-    </div>
+    </footer>
 </body>
 </html>
