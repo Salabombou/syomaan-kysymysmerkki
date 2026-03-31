@@ -132,9 +132,9 @@ input[type="checkbox"]:not(:checked) + .theme-switch .sun {
     margin: 0 auto;
     padding: 0 clamp(1rem, 4vw, 2rem);
     display: grid;
-    flex-direction: column;
     justify-content: start;
     align-items: start;
+    align-content: start;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
 }
