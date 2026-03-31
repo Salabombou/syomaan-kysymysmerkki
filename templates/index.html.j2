@@ -38,6 +38,11 @@
 
         <div class="theme-switch-wrapper">
             <input type="checkbox" id="theme-toggle" aria-label="Vaihda teema">
+            <script>
+                // Set checkbox state immediately after the element is parsed to avoid toggle flicker
+                document.getElementById('theme-toggle').checked =
+                    document.documentElement.getAttribute('data-theme') === 'dark';
+            </script>
             <label class="theme-switch" for="theme-toggle" title="Vaihda vaalea/tumma teema">
                 <svg class="icon sun" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
                     fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -99,9 +104,8 @@
     </footer>
 
     <script>
-        // Sync toggle state with current theme
+        // Wire up theme toggle change handler
         const toggle = document.getElementById('theme-toggle');
-        toggle.checked = document.documentElement.getAttribute('data-theme') === 'dark';
 
         toggle.addEventListener('change', function () {
             const newTheme = this.checked ? 'dark' : 'light';
