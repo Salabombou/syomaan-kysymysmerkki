@@ -2,6 +2,7 @@ import os
 import shutil
 import random
 import datetime
+import difflib
 from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -44,43 +45,50 @@ PUBLIC_DIR = "public"
 TEMPLATE_DIR = "templates"
 STATIC_DIR = "assets"
 
-_CATEGORY_MAPPING = {
-    "koti": MenuCategory.KOTIRUOKA,
-    "keitto": MenuCategory.KEITTORUOKA,
-    "kasvis": MenuCategory.KASVISRUOKA,
-    "erikois": MenuCategory.ERIKOISRUOKA,
-    "jälki": MenuCategory.JALKIRUOKA,
-}
-
-_CATEGORY_PRIORITY = {
-    MenuCategory.KOTIRUOKA: 0,
-    MenuCategory.KEITTORUOKA: 1,
-    MenuCategory.KASVISRUOKA: 2,
-    MenuCategory.ERIKOISRUOKA: 3,
-    MenuCategory.MUU_RUOKA: 4,
-    MenuCategory.JALKIRUOKA: 5,
-}
-
 
 def clean_text(text: str) -> str:
     return text.replace("*", "").strip().strip(",").strip(".").strip()
 
 
 def is_ignored_meal(name: str) -> bool:
-    name_lower = name.lower()
-    return "salaatit" in name_lower or "leivät" in name_lower or "juomat" in name_lower
+    target = "Salaatit, leivät ja ruokajuomat"
+    ratio = difflib.SequenceMatcher(None, name.lower(), target.lower()).ratio()
+    return ratio > 0.5
 
 
 def get_category_name(category_name_raw: str) -> MenuCategory:
-    category_name_lower = category_name_raw.lower()
-    for keyword, category in _CATEGORY_MAPPING.items():
-        if keyword in category_name_lower:
-            return category
+    category_name_raw = category_name_raw.lower()
+    if "koti" in category_name_raw:
+        return MenuCategory.KOTIRUOKA
+    if "keitto" in category_name_raw:
+        return MenuCategory.KEITTORUOKA
+    if "kasvis" in category_name_raw:
+        return MenuCategory.KASVISRUOKA
+    if "erikois" in category_name_raw:
+        return MenuCategory.ERIKOISRUOKA
+    if "jälki" in category_name_raw:
+        return MenuCategory.JALKIRUOKA
     return MenuCategory.MUU_RUOKA
 
 
 def sort_by_menu_category_name(menus: List[MenuItem]) -> List[MenuItem]:
-    return sorted(menus, key=lambda m: _CATEGORY_PRIORITY.get(m.category, 99))
+    def get_priority(menu: MenuItem) -> int:
+        match (menu.category):
+            case MenuCategory.KOTIRUOKA:
+                return 0
+            case MenuCategory.KEITTORUOKA:
+                return 1
+            case MenuCategory.KASVISRUOKA:
+                return 2
+            case MenuCategory.ERIKOISRUOKA:
+                return 3
+            case MenuCategory.MUU_RUOKA:
+                return 4
+            case MenuCategory.JALKIRUOKA:
+                return 5
+        return 99
+
+    return sorted(menus, key=get_priority)
 
 
 def scrape_menu() -> List[MenuItem]:
@@ -165,6 +173,24 @@ def generate_html(menus: List[MenuItem]) -> None:
 
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     template = env.get_template("index.html.j2")
+    
+    # For debugging frontend without scraping, you can use this dummy data:
+    """
+    menus = [
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+        MenuItem(
+            category=MenuCategory.KOTIRUOKA,
+            meals=[MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet=""),MealItem(name="Ei ruokalistaa tälle päivälle.", diet="")],
+        ),
+    ]
+    """
     
     meta_description_lines = []
     for menu in menus:
