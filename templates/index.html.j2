@@ -15,7 +15,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:card:src" content="/syomaan/cards/{{ card_image }}">
     {% endif %}
-    <meta name="theme-color" content="{% if menus %} #fdb92a {% else %} #8D8D8D {% endif %}">
+    <meta name="theme-color" content="{% if menus %}#fdb92a{% else %}#8D8D8D{% endif %}">
     <title>{{ page_title }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,9 +23,11 @@
     <link rel="stylesheet" href="style.css">
     <script>
         // Sync JS to read localStorage and set theme before paint to avoid FOUC
-        const savedTheme = localStorage.getItem('theme')
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark')
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
     </script>
 </head>
@@ -56,12 +58,6 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
             </label>
-            <script>
-                // Check the toggle if theme is dark
-                if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                    document.getElementById('theme-toggle').checked = true
-                }
-            </script>
         </div>
     </header>
 
@@ -90,6 +86,11 @@
     <footer class="app-footer">
         Päivitetty: {{ updated_at }}
     </footer>
+
+    <script>
+        // Sync toggle state with current theme
+        document.getElementById('theme-toggle').checked = document.documentElement.getAttribute('data-theme') === 'dark';
+    </script>
 </body>
 
 </html>
